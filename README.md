@@ -1,1 +1,1 @@
-This java twitch bot that uses PircBot.
+This is a simple java twitch bot that uses PircBot.
