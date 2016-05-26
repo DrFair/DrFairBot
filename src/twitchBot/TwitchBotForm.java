@@ -12,7 +12,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class TwitchBotForm extends JFrame {
 
@@ -28,13 +27,14 @@ public class TwitchBotForm extends JFrame {
     private ArrayList<String> channels;
     private ArrayList<StringBuilder> channelDocs;
     private String focusChannel;
+    private int focusIndex;
 
     public TwitchBotForm(TwitchBot bot) {
         super("DrFair Twitch Bot");
         this.bot = bot;
         setContentPane(panel);
         pack();
-        setSize(500, 500);
+        setSize(700, 500);
         setVisible(true);
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -84,11 +84,14 @@ public class TwitchBotForm extends JFrame {
         openChannel(channel);
         focusChannel = channel;
         int index = channels.indexOf(channel);
-        if (index != -1) channelList.setSelectedIndex(index);
+        if (index != -1) {
+            focusIndex = index;
+            channelList.setSelectedIndex(index);
+        }
         updateConsole(focusChannel);
     }
 
-    private void openChannel(String channel) {
+    public void openChannel(String channel) {
         if (!channels.contains(channel)) {
             int lastSelectedIndex = channelList.getSelectedIndex();
             channels.add(channel);
@@ -98,10 +101,34 @@ public class TwitchBotForm extends JFrame {
         }
     }
 
+    public void closeChannel(String channel) {
+        int index = channels.indexOf(channel);
+        if (index > 0) { // Found index and not console log
+            int lastSelectedIndex = channelList.getSelectedIndex();
+            channels.remove(index);
+            channelDocs.remove(index);
+            channelList.setListData(channels.toArray());
+            if (lastSelectedIndex == index) lastSelectedIndex--;
+            channelList.setSelectedIndex(lastSelectedIndex);
+        }
+    }
+
     private void submitInputField() {
-        bot.submitCommand(inputField.getText());
+        submitCommand(inputField.getText());
         inputField.setText("");
         inputField.requestFocus();
+    }
+
+    private void submitCommand(String command) {
+        if (focusIndex == 0) { // In console log
+            bot.submitCommand(command);
+        } else { // In some channel
+            if (command.startsWith("/")) { // Is a command
+                bot.command(focusChannel, command.substring(1));
+            } else {
+                bot.chat(focusChannel, command);
+            }
+        }
     }
 
     public void writeConsole(String message) {

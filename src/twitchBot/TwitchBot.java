@@ -23,15 +23,13 @@ public class TwitchBot {
 
     public static final String TWITCH_WHISPER_IP = "199.9.253.119"; // Not in use
 
-    public final String channel;
     private String OAuth;
     private TwitchPircBot pircBot;
 
     private TwitchBotForm form;
     private Thread scannerThread;
 
-    public TwitchBot(String twitchChannel, boolean startForm) {
-        this.channel = "#" + twitchChannel;
+    public TwitchBot(boolean startForm) {
         if (startForm) form = new TwitchBotForm(this);
         pircBot = new TwitchPircBot(this);
         startScanner();
@@ -41,26 +39,31 @@ public class TwitchBot {
         if (command.equals("exit")) {
             disconnect();
             return;
-        } else if (command.startsWith("/r ")) {
-            rawLine(command.substring(3));
+        } else if (command.startsWith("raw ")) {
+            rawLine(command.substring(4));
             return;
-        } else if (command.startsWith("/w ")) {
+        } else if (command.startsWith("w ")) {
             String username = command.split(" ")[1];
             whisper(username, command.substring(3 + username.length() + 1));
             return;
-        } else if (command.startsWith("/")) {
-            command(command.substring(1));
+        } else if (command.startsWith("join ")) {
+            joinChannel(command.substring(5));
             return;
+        } else if (command.startsWith("leave ")) {
+            leaveChannel(command.substring(6));
+            return;
+        } else {
+            log("Unknown command: " + command);
         }
-        chat(command);
     }
 
-    public void chat(String message) {
+    public void chat(String channel, String message) {
         log("(" + channel + ") " + TWITCH_USERNAME + ": " + message);
+        if (form != null) form.writeChannelLine(channel, TWITCH_USERNAME + ": " + message);
         pircBot.sendRawLine("PRIVMSG " + channel + " :" + message);
     }
 
-    public void command(String command) {
+    public void command(String channel, String command) {
         log("(" + channel + ") issued command: /" + command);
         pircBot.sendRawLine("PRIVMSG " + channel + " :." + command);
     }
@@ -113,13 +116,24 @@ public class TwitchBot {
 
     public void onConnected() {
         // Join channel
-        joinChannel(channel);
+//        joinChannel("drfairtv");
     }
 
     public void joinChannel(String twitchChannel) {
-        log("Joining channel " + twitchChannel);
-        if (form != null) form.writeChannelLine(twitchChannel, "Joining channel " + twitchChannel);
-        rawLine("JOIN " + twitchChannel);
+        String channel = "#" + twitchChannel.toLowerCase();
+        log("Joining channel " + channel);
+        if (form != null) form.writeChannelLine(channel, "Joining channel " + channel);
+        rawLine("JOIN " + channel);
+    }
+
+    public void leaveChannel(String twitchChannel) {
+        String channel = "#" + twitchChannel.toLowerCase();
+        log("Leaving channel " + channel);
+        if (form != null) {
+            form.writeChannelLine(channel, "Leaving channel " + channel);
+            form.closeChannel(channel);
+        }
+        rawLine("PART " + channel);
     }
 
     public void disconnect() {
