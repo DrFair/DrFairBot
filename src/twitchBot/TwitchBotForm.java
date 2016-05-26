@@ -1,8 +1,7 @@
 package twitchBot;
 
-import twitchBot.TwitchBot;
-
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -13,10 +12,13 @@ public class TwitchBotForm extends JFrame {
     private TwitchBot bot;
 
     private JPanel panel;
-    private JTextArea console;
+    private JTextPane console;
     private JScrollPane consoleScroll;
     private JTextField inputField;
     private JButton submitButton;
+    private JList channelList;
+
+    private StringBuilder htmlConsole;
 
     public TwitchBotForm(TwitchBot bot) {
         super("Fair Twitch Bot");
@@ -44,6 +46,8 @@ public class TwitchBotForm extends JFrame {
         });
 
         inputField.requestFocus();
+
+        htmlConsole = new StringBuilder("<html>");
     }
 
     private void submitInputField() {
@@ -53,7 +57,26 @@ public class TwitchBotForm extends JFrame {
     }
 
     public void writeConsoleLine(String message) {
-        console.append(message + "\n");
-        console.setCaretPosition(console.getText().length());
+        writeConsole(message, Color.BLACK);
+        newLine();
+    }
+
+    public void writeConsole(String message, Color color) {
+        String hexColor = String.format("%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+        htmlConsole.append("<span style=\"color:");
+        htmlConsole.append(hexColor);
+        htmlConsole.append("\">");
+        htmlConsole.append(message);
+        htmlConsole.append("</span>");
+        updateConsole();
+    }
+
+    public void newLine() {
+        htmlConsole.append("<br>");
+        updateConsole();
+    }
+
+    private void updateConsole() {
+        console.setText(htmlConsole.toString());
     }
 }

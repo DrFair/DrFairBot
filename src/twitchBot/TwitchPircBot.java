@@ -49,9 +49,8 @@ public class TwitchPircBot extends PircBot {
             // Wait for it getting acknowledge
         } else if (message.equals(":twitch.tv/commands")) {
             bot.log("Got commands capabilities.");
-            // Join channel
-            bot.log("Joining channel " + bot.channel);
-            sendRawLine("JOIN " + bot.channel);
+            // Send connected event to bot
+            bot.onConnected();
         }
     }
 

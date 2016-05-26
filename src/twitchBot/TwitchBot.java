@@ -54,11 +54,6 @@ public class TwitchBot {
         chat(command);
     }
 
-    public void log(String message) {
-        System.out.println(message);
-        if (form != null) form.writeConsoleLine(message);
-    }
-
     public void chat(String message) {
         log("(" + channel + ") " + TWITCH_USERNAME + ": " + message);
         pircBot.sendRawLine("PRIVMSG " + channel + " :" + message);
@@ -112,6 +107,16 @@ public class TwitchBot {
     public void onAcknowledge(String message) {
     }
 
+    public void onConnected() {
+        // Join channel
+        joinChannel(channel);
+    }
+
+    public void joinChannel(String twitchChannel) {
+        log("Joining channel " + twitchChannel);
+        rawLine("JOIN " + twitchChannel);
+    }
+
     public void disconnect() {
         scannerThread.interrupt();
         log("Disconnecting bot..");
@@ -153,5 +158,10 @@ public class TwitchBot {
             if (OAuth == null || OAuth.length() == 0) throw new NullPointerException("Could not read OAUTH in file located at " + TWITCH_OAUTH_PATH + ". Make sure first line is the OAUTH token.");
         }
         return OAuth;
+    }
+
+    public void log(String message) {
+        System.out.println(message);
+        if (form != null) form.writeConsoleLine(message);
     }
 }
