@@ -48,7 +48,7 @@
         </constraints>
         <properties>
           <hideActionText value="true"/>
-          <text value="Button"/>
+          <text value="Send"/>
         </properties>
       </component>
       <component id="8a1c4" class="javax.swing.JTextField" binding="joinChannelField">
