@@ -23,6 +23,9 @@ public class TwitchBotForm extends JFrame {
     private JTextField inputField;
     private JButton submitButton;
     private JList channelList;
+    private JButton leaveChannelButton;
+    private JTextField joinChannelField;
+    private JButton joinChannelButton;
 
     private ArrayList<String> channels;
     private ArrayList<StringBuilder> channelDocs;
@@ -54,16 +57,35 @@ public class TwitchBotForm extends JFrame {
             }
         });
 
-        channelList.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting()) return;
-                int index = channelList.getSelectedIndex();
-                if (index != -1) {
-                    String channel = channels.get(channelList.getSelectedIndex());
-//                    System.out.println("Changed channel to " + channel);
-                    setFocusChannel(channel);
+        channelList.addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) return;
+            int index = channelList.getSelectedIndex();
+            if (index != -1) {
+                String channel = channels.get(channelList.getSelectedIndex());
+//                System.out.println("Changed channel to " + channel);
+                setFocusChannel(channel);
+            }
+//            System.out.println("Changed value to " + channelList.getSelectedIndex());
+        });
+
+
+
+        leaveChannelButton.addActionListener(e -> {
+            if (focusIndex != 0) bot.leaveChannel(focusChannel.substring(1));
+            inputField.requestFocus();
+        });
+        joinChannelButton.addActionListener(e -> {
+            bot.joinChannel(joinChannelField.getText());
+            joinChannelField.setText("");
+            inputField.requestFocus();
+        });
+        joinChannelField.addKeyListener(new KeyAdapter() { // Add enter key listener to join channel
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    bot.joinChannel(joinChannelField.getText());
+                    joinChannelField.setText("");
+                    inputField.requestFocus();
                 }
-//                System.out.println("Changed value to " + channelList.getSelectedIndex());
             }
         });
 
@@ -79,7 +101,7 @@ public class TwitchBotForm extends JFrame {
         setFocusChannel("IRC-console");
     }
 
-    private void setFocusChannel(String channel) {
+    public void setFocusChannel(String channel) {
         if (focusChannel != null && focusChannel.equals(channel)) return;
         openChannel(channel);
         focusChannel = channel;
@@ -102,8 +124,15 @@ public class TwitchBotForm extends JFrame {
     }
 
     public void closeChannel(String channel) {
-        int index = channels.indexOf(channel);
-        if (index > 0) { // Found index and not console log
+        closeChannel(channels.indexOf(channel));
+    }
+
+    public void closeCurrentChannel() {
+        closeChannel(focusIndex);
+    }
+
+    public void closeChannel(int index) {
+        if (index > 0) { // Not console log
             int lastSelectedIndex = channelList.getSelectedIndex();
             channels.remove(index);
             channelDocs.remove(index);
@@ -172,8 +201,14 @@ public class TwitchBotForm extends JFrame {
     private void updateConsole(String channel, StringBuilder sb) {
         if (focusChannel.equals(channel)) {
             console.setText(sb.toString());
-            console.setCaretPosition(console.getDocument().getLength());
+            scrollDown();
         }
+    }
+
+    public void scrollDown() {
+//        JScrollBar vScroll = consoleScroll.getVerticalScrollBar();
+//        vScroll.setValue(vScroll.getMaximum());
+        console.setCaretPosition(console.getDocument().getLength());
     }
 
     private void updateConsole(String channel) {

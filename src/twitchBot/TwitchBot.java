@@ -122,7 +122,10 @@ public class TwitchBot {
     public void joinChannel(String twitchChannel) {
         String channel = "#" + twitchChannel.toLowerCase();
         log("Joining channel " + channel);
-        if (form != null) form.writeChannelLine(channel, "Joining channel " + channel);
+        if (form != null) {
+            form.writeChannelLine(channel, "Joining channel " + channel);
+            form.setFocusChannel(channel);
+        }
         rawLine("JOIN " + channel);
     }
 
