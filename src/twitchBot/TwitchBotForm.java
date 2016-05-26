@@ -75,16 +75,20 @@ public class TwitchBotForm extends JFrame {
             inputField.requestFocus();
         });
         joinChannelButton.addActionListener(e -> {
-            bot.joinChannel(joinChannelField.getText());
-            joinChannelField.setText("");
-            inputField.requestFocus();
+            if (joinChannelField.getText().length() > 0) {
+                bot.joinChannel(joinChannelField.getText());
+                joinChannelField.setText("");
+                inputField.requestFocus();
+            }
         });
         joinChannelField.addKeyListener(new KeyAdapter() { // Add enter key listener to join channel
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    bot.joinChannel(joinChannelField.getText());
-                    joinChannelField.setText("");
-                    inputField.requestFocus();
+                    if (joinChannelField.getText().length() > 0) {
+                        bot.joinChannel(joinChannelField.getText());
+                        joinChannelField.setText("");
+                        inputField.requestFocus();
+                    }
                 }
             }
         });
@@ -143,6 +147,7 @@ public class TwitchBotForm extends JFrame {
     }
 
     private void submitInputField() {
+        if (inputField.getText().length() == 0) return;
         submitCommand(inputField.getText());
         inputField.setText("");
         inputField.requestFocus();
