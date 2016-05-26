@@ -141,7 +141,7 @@ public class TwitchBotForm extends JFrame {
             channelDocs.remove(index);
             channelList.setListData(channels.toArray());
             if (lastSelectedIndex == index) lastSelectedIndex--;
-            channelList.setSelectedIndex(lastSelectedIndex);
+            setFocusChannel(channels.get(lastSelectedIndex));
         }
     }
 
