@@ -1,12 +1,9 @@
 package twitchBot;
 
-import org.jibble.pircbot.IrcException;
-import org.jibble.pircbot.PircBot;
 import twitchResponse.*;
 import twitchResponse.twitchUser.TwitchChatUser;
 import twitchResponse.twitchUser.TwitchWhisperUser;
 
-import java.awt.*;
 import java.io.*;
 import java.util.Scanner;
 
@@ -87,7 +84,7 @@ public class TwitchBot {
         if (form != null) form.submitChannelNotify(channel, message);
     }
 
-    public void onChannelMessage(String channel, TwitchChatUser user, String message) {
+    public void onChannelMessage(String channel, TwitchTags tags, TwitchChatUser user, String message) {
         String prefix = "";
         if (user.mod) prefix += "MOD ";
         else prefix += "    ";
@@ -96,7 +93,7 @@ public class TwitchBot {
         if (user.subscriber) prefix += "SUB ";
         else prefix += "    ";
         log("(" + channel + ") " + prefix + user.displayName + ": " + message);
-        if (form != null) form.submitChannelMessage(channel, user, message);
+        if (form != null) form.submitChannelMessage(channel, tags, user, message);
     }
 
     public void onChannelRoomState(String channel, TwitchRoomState roomState) {

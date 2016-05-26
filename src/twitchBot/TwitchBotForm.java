@@ -1,11 +1,10 @@
 package twitchBot;
 
+import twitchResponse.TwitchResponse;
 import twitchResponse.TwitchTags;
 import twitchResponse.twitchUser.TwitchChatUser;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -221,9 +220,10 @@ public class TwitchBotForm extends JFrame {
         updateConsole(channel, channelDocs.get(channels.indexOf(channel)));
     }
 
-    public void submitChannelMessage(String channel, TwitchChatUser user, String message) {
+    public void submitChannelMessage(String channel, TwitchTags tags, TwitchChatUser user, String message) {
         writeChannel(channel, user.displayName, user.color);
         writeChannelLine(channel, ": " + message);
+//        writeChannelLine(channel, ": " + insertEmotes(tags.getDataByName("emotes"), message));
     }
 
     public void submitChannelNotice(String channel, TwitchTags tags, String notice) {
@@ -232,5 +232,46 @@ public class TwitchBotForm extends JFrame {
 
     public void submitChannelNotify(String channel, String message) {
         writeChannelLine(channel, message);
+    }
+
+    private String insertEmotes(String emoteData, String message) {
+        if (emoteData.length() == 0) return message; // No emotes in message
+        ArrayList<EmoteReplace> replaces = new ArrayList<>();
+        String[] difEmotes = emoteData.split("/");
+        for (String sEmoteData : difEmotes) {
+            String[] dataSplit = sEmoteData.split(":");
+            String emoteID = dataSplit[0];
+            String[] emotePlaces = dataSplit[1].split(",");
+            // Only need 1 place to get code that replaces all
+            String placeData = emotePlaces[0];
+            String[] splitPlace = placeData.split("-");
+            try {
+                int start = Integer.parseInt(splitPlace[0]);
+                int end = Integer.parseInt(splitPlace[1]);
+                replaces.add(new EmoteReplace(message.substring(start, end + 1), emoteID));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        String out = " " + message + " ";
+        for (EmoteReplace r : replaces) {
+            out = r.format(out);
+        }
+        return out.trim();
+    }
+
+    private static class EmoteReplace {
+        public final String code, emoteID;
+
+        public EmoteReplace(String code, String emoteID) {
+            this.code = code;
+            System.out.println("CODE: \"" + code + "\"");
+            this.emoteID = emoteID;
+        }
+
+        public String format(String originalText) {
+            String htmlText = " <img src=\"http://static-cdn.jtvnw.net/emoticons/v1/" + emoteID + "/1.0\"> ";
+            return originalText.replaceAll(" " + code + " ", htmlText);
+        }
     }
 }

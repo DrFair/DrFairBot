@@ -112,7 +112,7 @@ public class TwitchPircBot extends PircBot {
                         if (tr.getSenderNick().equals("twitchnotify")) {
                             bot.onChannelNotify(channel, msg);
                         } else {
-                            bot.onChannelMessage(channel, new TwitchChatUser(tr.getTags(), tr.getSenderNick()), msg);
+                            bot.onChannelMessage(channel, tr.getTags(), new TwitchChatUser(tr.getTags(), tr.getSenderNick()), msg);
                         }
                         break;
                     }
