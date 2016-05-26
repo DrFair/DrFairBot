@@ -9,7 +9,7 @@ public class TwitchUser {
     public final TwitchTags tags;
     public final String displayName, badges, userType;
     public final boolean hasSetDisplayName;
-    public final Color color;
+    public final String color;
     public final int userID;
     public final boolean turbo;
 
@@ -25,7 +25,8 @@ public class TwitchUser {
             hasSetDisplayName = true;
         }
         badges = tags.getDataByName("badges");
-        color = Color.decode(tags.getDataByName("color"));
+//        color = Color.decode(tags.getDataByName("color"));
+        color = tags.getDataByName("color");
         turbo = tags.getBooleanDataByName("turbo");
         userID = tags.getIntDataByName("user-id");
         userType = tags.getDataByName("user-type");

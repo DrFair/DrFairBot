@@ -6,6 +6,7 @@ import twitchResponse.*;
 import twitchResponse.twitchUser.TwitchChatUser;
 import twitchResponse.twitchUser.TwitchWhisperUser;
 
+import java.awt.*;
 import java.io.*;
 import java.util.Scanner;
 
@@ -75,10 +76,12 @@ public class TwitchBot {
 
     public void onChannelNotice(String channel, TwitchTags tags, String notice) {
         log("(" + channel + ") " + notice);
+        if (form != null) form.submitChannelNotice(channel, tags, notice);
     }
 
     public void onChannelNotify(String channel, String message) {
         log("(" + channel + ") " + message);
+        if (form != null) form.submitChannelNotify(channel, message);
     }
 
     public void onChannelMessage(String channel, TwitchChatUser user, String message) {
@@ -90,6 +93,7 @@ public class TwitchBot {
         if (user.subscriber) prefix += "SUB ";
         else prefix += "    ";
         log("(" + channel + ") " + prefix + user.displayName + ": " + message);
+        if (form != null) form.submitChannelMessage(channel, user, message);
     }
 
     public void onChannelRoomState(String channel, TwitchRoomState roomState) {
@@ -114,6 +118,7 @@ public class TwitchBot {
 
     public void joinChannel(String twitchChannel) {
         log("Joining channel " + twitchChannel);
+        if (form != null) form.writeChannelLine(twitchChannel, "Joining channel " + twitchChannel);
         rawLine("JOIN " + twitchChannel);
     }
 
